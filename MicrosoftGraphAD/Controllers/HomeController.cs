@@ -11,11 +11,13 @@ namespace MicrosoftGraphAD.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ITokenAcquisition _tokenAcquisition;
+        private readonly GraphServiceClient _graphServiceClient;
 
-        public HomeController(ILogger<HomeController> logger, ITokenAcquisition tokenAcquisition)
+        public HomeController(ILogger<HomeController> logger, ITokenAcquisition tokenAcquisition, GraphServiceClient graphServiceClient)
         {
             _logger = logger;
             _tokenAcquisition = tokenAcquisition;
+            _graphServiceClient = graphServiceClient;
         }
 
         public IActionResult Index()
@@ -37,6 +39,36 @@ namespace MicrosoftGraphAD.Controllers
         public IActionResult Privacy()
         {
             return View();
+        }
+
+        public async Task<bool> CallGraphAPI() //InitialiseAction
+        {
+            #region get all groups of org
+            var groups = await _graphServiceClient.Groups.Request().Top(999)
+               .GetAsync();
+            Console.WriteLine($"groups= {groups}");
+            //List<string> dls = new List<string>();
+
+            Console.WriteLine($"Group Count= {groups.Count()}");
+            foreach (var group in groups)
+            {
+                //checking if the group is a DL
+                //if (group.GroupTypes.Count() == 0 && group.MailEnabled == true)
+                {
+                    //dls.Add(group.Id);
+                    Console.WriteLine("emptyyyyy");
+                    Console.WriteLine($"Group Id: {group.Id}");
+                    Console.WriteLine($"Group Display Name: {group.DisplayName}");
+                    Console.WriteLine($"Group Description: {group.Description}"); //groupTypes
+                    Console.WriteLine($"Group Types: {group.GroupTypes}");
+
+                }
+                Console.WriteLine($"mailEnabled: {group.MailEnabled}");
+            }
+            //Console.WriteLine($"DL count = {dls.Count()}");
+            #endregion
+
+            return true;
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
